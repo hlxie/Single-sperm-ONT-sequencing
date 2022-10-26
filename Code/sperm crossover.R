@@ -47,6 +47,9 @@ viterbi=function()
    return(result)
   
     }
+
+
+##############################################################
   
   data_raw=rbind(Snp_file)
   sample_crossover_site=list()
@@ -89,14 +92,14 @@ viterbi=function()
        v=viterbi()
   
  ###############################################################
-     data_raw_C$HMM=v
-     data_raw_C$diff=c(diff(v),0)
-     data_raw_C$ID=1:dim(data_raw_C)[1]
+       data_raw_C$HMM=v
+       data_raw_C$diff=c(diff(v),0)
+       data_raw_C$ID=1:dim(data_raw_C)[1]
  
  
-     site=data_raw_C[data_raw_C$diff=="-1"|data_raw_C$diff=="1" ,]
+       site=data_raw_C[data_raw_C$diff=="-1"|data_raw_C$diff=="1" ,]
  
-     if (dim(site)[1]>0)
+       if (dim(site)[1]>0)
        {
         site_length=c()
         site_length[1]=data_raw_C[site[1,"ID"],"V2"]-data_raw_C[1,"V2"]
@@ -149,7 +152,6 @@ viterbi=function()
                         TT=finally_site[1,"HMM"]
                         kong=as.data.frame(t(c(chr_,0,0,0,TT)))
                         colnames(kong)=c("V1","Cross_site_str","Cross_site_end","resolution","HMM")
- 
                         kong$HMM=as.double(TT)
                         kong$Cross_site_str=as.double(kong$Cross_site_str)
                         kong$Cross_site_end=as.double(kong$Cross_site_end)
