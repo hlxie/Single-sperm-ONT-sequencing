@@ -256,8 +256,8 @@ gettrans_our=function(i)
 }
  
  
-cell_10_SUPP=read.table("/date/xiehaoling/Sperm/new_Sperm/SV_phasing_finally/SV/Phasing_SV.dat")
-cell_10_COV=read.table("/date/xiehaoling/Sperm/new_Sperm/SV_phasing_finally/SV/Phasing_SV_cov.dat")
+cell_10_SUPP=read.table("Phasing_SV.dat")
+cell_10_COV=read.table("Phasing_SV_coverage.dat")
   
 cell_10_COV=cell_10_COV[row.names(cell_10_SUPP),colnames(cell_10_SUPP)]
 Finall_SUPP=cell_10_SUPP/cell_10_COV
