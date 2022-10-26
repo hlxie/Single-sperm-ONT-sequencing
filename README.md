@@ -1,4 +1,4 @@
-# Single-sperm-sequencing
+# Single sperm  ONT sequencing
 
 ## Long-read-based single sperm genome sequencing for variant calling and chromosome-wide haplotype phasing
 
