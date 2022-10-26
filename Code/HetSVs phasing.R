@@ -92,12 +92,6 @@ imptDetermineFun <- function(v,nSPT=2) {
  
  }
 
-
-
-
-
-
-
 naAdjacentFun <- function(gmt) {
    nonNAPos <- which(!is.na(gmt))
    nonNAPosDiff <- diff(nonNAPos)
