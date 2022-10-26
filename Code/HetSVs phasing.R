@@ -197,42 +197,201 @@ viterbi_our = function(hmm, observation)
    
    
    
-   
-   
-   
-     ¦   ¦ # Traceback
- 27     viterbiPath = rep(NA,nObservations)
- 26     ¦   for(state in hmm$States)
- 25     ¦   {
- 24     ¦   ¦   if(max(v[,nObservations])==v[state,nObservations])
- 23     ¦   ¦   {
- 22     ¦   ¦   ¦   viterbiPath[nObservations] = state
- 21     ¦   ¦   ¦   break
- 20     ¦   ¦   ¦   ¦   ¦   ¦
- 19     ¦   ¦   }
- 18     ¦   ¦
- 17     ¦   }
- 16     ¦   for(k in (nObservations-1):1)
- 15     ¦   {
- 14     ¦   ¦   for(state in hmm$States)
- 13     ¦   ¦   {
- 12     ¦   ¦   ¦   if(max(v[,k]+log(hmm$transProbs[[k]][,viterbiPath[k+1]]))==v[state,k]+log(hmm$transProbs[[k]][state,vit    erbiPath[k+1]]))
- 11     ¦   ¦   ¦   {
- 10     ¦   ¦   ¦   ¦   viterbiPath[k] = state
-  9     ¦   ¦   ¦   ¦   break
-  8     ¦   ¦   ¦   ¦   ¦   ¦   ¦   ¦   ¦   ¦
-  7     ¦   ¦   ¦   }
-  6     ¦   ¦   ¦   ¦   ¦
-  5     ¦   ¦   }
-  4     ¦   ¦   ¦
-  3     ¦   }
-  2     ¦   return(viterbiPath)
-  1     ¦   ¦
-247 }
+    # Traceback
+viterbiPath = rep(NA,nObservations)
+for(state in hmm$States)
+  {
+    if(max(v[,nObservations])==v[state,nObservations])
+        {
+            iterbiPath[nObservations] = state
+            break
+ 
+        }
+ 
+  }
+for(k in (nObservations-1):1)
+ {
+    for(state in hmm$States)
+        {
+            if(max(v[,k]+log(hmm$transProbs[[k]][,viterbiPath[k+1]]))==v[state,k]+log(hmm$transProbs[[k]][state,viterbiPath[k+1]]))
+                {
+                    viterbiPath[k] = state
+                    break
+                }
+  
+        }
+  
+  }
+  return(viterbiPath)
+
+}
+
+initHMM_our = function(States, Symbols, startProbs=NULL, transProbs=NULL, emissionProbs=NULL)
+{
+  nStates    = length(States)
+  nSymbols   = length(Symbols)
+  S          = rep(1/nStates,nStates)
+  T          = 0.5*diag(nStates) + array(0.5/(nStates),c(nStates,nStates))
+  E          = array(1/(nSymbols),c(nStates,nSymbols))
+  names(S)   = States
+  dimnames(T)= list(from=States,to=States)
+  dimnames(E)= list(states=States,symbols=Symbols)
+  if(!is.null(startProbs)){S[]  = startProbs[]}
+  if(!is.null(emissionProbs)){E[,] = emissionProbs[,]}
+  return(list(States=States,Symbols=Symbols,startProbs=S,transProbs=transProbs,emissionProbs=E))
+  }
+                     
+                 
+flipFun <- function(v){
+  v2 <- ifelse(v==7,7,ifelse(v==0, 1, 0))
+  return (v2)
+}
+
+                     
+transbasis=rbind(c(0,1),c(1,0))
+gettrans_our=function(i)
+{
+  return(diag(2)*(1-rec[i])+transbasis*rec[i])
+ 
+}
+ 
+ 
+cell_10_SUPP=read.table("/date/xiehaoling/Sperm/new_Sperm/SV_phasing_finally/SV/Phasing_SV.dat")
+cell_10_COV=read.table("/date/xiehaoling/Sperm/new_Sperm/SV_phasing_finally/SV/Phasing_SV_cov.dat")
+  
+cell_10_COV=cell_10_COV[row.names(cell_10_SUPP),colnames(cell_10_SUPP)]
+Finall_SUPP=cell_10_SUPP/cell_10_COV
+Finall_SUPP[Finall_SUPP>1]=1
 
 
+############################################################################################################
+Chr=c()
+Star=c()
+End=c()
+j=1
+for( i in row.names(Finall_SUPP)  )
+{
+  Chr[j]=strsplit(i,'_')[[1]][1]
+  Star[j]=as.numeric(strsplit(i,'_')[[1]][2])
+  End[j]=as.numeric(strsplit(i,'_')[[1]][3])
+  j=j+1
+ 
+}
+Finall_SUPP$Chr=Chr
+Finall_SUPP$Star=Star
+Finall_SUPP$End=End
+ 
+Finall_SUPP=Finall_SUPP[order(Finall_SUPP$Chr,Finall_SUPP$Star,Finall_SUPP$End),]
+ 
+Finall_SUPP$Chr=NULL
+Finall_SUPP$Star=NULL
+Finall_SUPP$End=NULL
+ 
+##############################################################################################################
+  
+Phasing_sample_use=Finall_SUPP
+ 
+j=1
+Chr=c()
+for( i in row.names(Phasing_sample_use) )
+{
+ 
+  Chr[j]=strsplit(i,'_')[[1]][1]
+  j=j+1
+ 
+}
+Phasing_sample_use$Chr=Chr
+ 
+for(Chr_num in c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9","chr10","chr11","chr12","chr13","chr14","chr15","chr16","chr17","chr18","chr19"))
+{
+  Phasing_sample_use_chr1=Phasing_sample_use[Phasing_sample_use$Chr==Chr_num,]
+  gmtDa=Phasing_sample_use_chr1[,1:1573]
+  gmtDa=hapiFrameSelection(gmtDa, 5)
+  
+  hmm = initHMM(States=c("S","D"), Symbols=c("s","d"),
+        transProbs=matrix(c(0.99,0.0001,0.01,0.99),2),
+        emissionProbs=matrix(c(0.99,0.0001,0.01,0.99),2),
+        startProbs = c(0.5,0.5))
 
+  data_tmp=as.data.frame(apply(gmtDa, 2, function(y) sum(!is.na(y))))
+  data_tmp$F=data_tmp[,1]
+  well_cell=row.names( data_tmp[order(data_tmp$F,decreasing = T),]  )[1:100]
+  gmtDa=gmtDa[,well_cell]
+  gmtDa=hapiFrameSelection(gmtDa, 3)
+  Phasing_sample_use_chr1=gmtDa
+ 
+for (nn in 1:5){
+  nSNP <- nrow(gmtDa)
+  genoError=list()
+  Cell_Error=list()
+  tmp2=c()
+  for (i in 1:ncol(gmtDa)) {
+      genoError[[i]] <- lapply(gmtDa[,-i], function(x)
+      filterErrorFun(gmtDa[,i],x,Phasing_sample_use=Phasing_sample_use_chr1,hmm=hmm))
+      tmp1=as.data.frame(table(unlist(genoError[[i]])))
+      tmp1=tmp1[tmp1$Var1!=0,]
+  
+      tmp1=tmp1[tmp1$Freq>4,]
+      tmp1$cell_sup=as.data.frame(apply(Phasing_sample_use_chr1, 1, function(y) sum(!is.na(y))))[as.numeric(as.charac    ter(tmp1$Var1)),]
+      tmp1$ratio=tmp1$Freq/tmp1$cell_sup
+      tmp1=tmp1[tmp1$ratio>0.5,]
+    
+      Cell_Error[[i]]=as.character(tmp1$Var1)
+      tmp2=c(tmp2,as.character(tmp1$Var1))
+ 
+   }
+ 
+   need_ver=as.data.frame(table(tmp2))
+   need_delet_location=as.numeric(as.character(need_ver[need_ver$Freq>5,]$tmp2))
+   need_ver_location=need_ver[need_ver$Freq<3,]$tmp2
+   need_ver_location=as.numeric(as.character(need_ver_location))
+ 
+   for (i in 1:ncol(gmtDa)) {
+        ver_num=intersect(as.numeric(Cell_Error[[i]]),need_ver_location)
+        for(j in ver_num)
+            {
+               gmtDa[j,i]=flipFun(gmtDa[j,i])
+            }
+ 
+   }
+  
+   if(length(need_delet_location)==0)
+        { gmtDa <- gmtDa  }else
+        { gmtDa <- gmtDa[-need_delet_location,] }
+                                        
+ }
 
+                                        
+                                   
+gmtFrame <- hapiFrameSelection(gmtDa, 3)
+ 
+gmtFrame <- imputationFun1(gmtFrame, nSPT=2)
+gmtFrame <- imputationFun1(gmtFrame, nSPT=2)
+gmtFrame <- imputationFun1(gmtFrame, nSPT=2)
+gmtFrame <- imputationFun1(gmtFrame, nSPT=2)
+gmtFrame <- imputationFun1(gmtFrame, nSPT=2)
+ 
+filter <- which(apply(gmtFrame, 1, function(y) sum(is.na(y)))>2)
+ 
+gmtFrame <- gmtFrame[-filter,]
+ 
+filter_cell=which(apply(gmtFrame, 2, function(y) sum(is.na(y)))>0)
+ 
+gmtFrame <- gmtFrame[,-filter_cell]
+ 
+draftHap <- hapiPhase(gmtFrame)
+ 
+finalDraft <- hapiBlockMPR(draftHap, gmtFrame, cvlink = 2,smallBlock=2)
+  
+consensusHap <- hapiAssemble(draftHap = finalDraft, gmt = gmtDa)
+  
+file1=paste("SV phasing/",Chr_num,"/DBA_indel.bed",sep = "")
+file2=paste("SV phasing/",Chr_num,"/C57_indel.bed",sep = "")
+  
+  
+write.table(consensusHap[consensusHap$hap1==0 ,],file1,quote=F,sep = "\t",row.names = T)
+write.table(consensusHap[consensusHap$hap1==1 ,],file2,quote=F,sep = "\t",row.names = T)
 
-
-
+                                        
+                                        
+                                        
