@@ -385,8 +385,8 @@ finalDraft <- hapiBlockMPR(draftHap, gmtFrame, cvlink = 2,smallBlock=2)
   
 consensusHap <- hapiAssemble(draftHap = finalDraft, gmt = gmtDa)
   
-file1=paste("SV phasing/",Chr_num,"/DBA_indel.bed",sep = "")
-file2=paste("SV phasing/",Chr_num,"/C57_indel.bed",sep = "")
+file1=paste("SV phasing/",Chr_num,"/Hap1.bed",sep = "")
+file2=paste("SV phasing/",Chr_num,"/Hap2.bed",sep = "")
   
   
 write.table(consensusHap[consensusHap$hap1==0 ,],file1,quote=F,sep = "\t",row.names = T)
