@@ -332,7 +332,7 @@ for (nn in 1:5){
       tmp1=tmp1[tmp1$Var1!=0,]
   
       tmp1=tmp1[tmp1$Freq>4,]
-      tmp1$cell_sup=as.data.frame(apply(Phasing_sample_use_chr1, 1, function(y) sum(!is.na(y))))[as.numeric(as.charac    ter(tmp1$Var1)),]
+      tmp1$cell_sup=as.data.frame(apply(Phasing_sample_use_chr1, 1, function(y) sum(!is.na(y))))[as.numeric(as.character(tmp1$Var1)),]
       tmp1$ratio=tmp1$Freq/tmp1$cell_sup
       tmp1=tmp1[tmp1$ratio>0.5,]
     
