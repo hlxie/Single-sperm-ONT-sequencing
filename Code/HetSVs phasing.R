@@ -3,11 +3,11 @@ library(Hapi)
 
 
 imputationFun1 <- function(pollens, nSPT=2) {
-snpName <- rownames(pollens)
+svName <- rownames(pollens)
 polName <- colnames(pollens)
 polNum <- ncol(pollens)
-snpNumTotal <- nrow(pollens)
-impute.final <- matrix(rep(NA,snpNumTotal*polNum), snpNumTotal, polNum)
+svNumTotal <- nrow(pollens)
+impute.final <- matrix(rep(NA,svNumTotal*polNum), svNumTotal, polNum)
 minNA <- 10000000
 newNA <- sum(apply(pollens, 1, function(y) sum(is.na(y)))>=1)
 
@@ -68,7 +68,7 @@ while (newNA < minNA) {
   newNA <- sum(apply(pollens, 1, function(y) sum(is.na(y)))>=1)
  }
   
- rownames(pollens) <- snpName
+ rownames(pollens) <- svName
  colnames(pollens) <- polName
  return (pollens)
  }
@@ -191,7 +191,7 @@ viterbi_our = function(hmm, observation)
    
    
    
-    # Traceback
+# Traceback
 viterbiPath = rep(NA,nObservations)
 for(state in hmm$States)
   {
@@ -315,7 +315,7 @@ for(Chr_num in c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8","chr9",
   Phasing_sample_use_chr1=gmtDa
  
 for (nn in 1:5){
-  nSNP <- nrow(gmtDa)
+ 
   genoError=list()
   Cell_Error=list()
   tmp2=c()
@@ -323,9 +323,8 @@ for (nn in 1:5){
       genoError[[i]] <- lapply(gmtDa[,-i], function(x)
       filterErrorFun(gmtDa[,i],x,Phasing_sample_use=Phasing_sample_use_chr1,hmm=hmm))
       tmp1=as.data.frame(table(unlist(genoError[[i]])))
-      tmp1=tmp1[tmp1$Var1!=0,]
-  
-      tmp1=tmp1[tmp1$Freq>4,]
+      tmp1=tmp1[tmp1$Var1!=0 & tmp1$Freq>4,]
+
       tmp1$cell_sup=as.data.frame(apply(Phasing_sample_use_chr1, 1, function(y) sum(!is.na(y))))[as.numeric(as.character(tmp1$Var1)),]
       tmp1$ratio=tmp1$Freq/tmp1$cell_sup
       tmp1=tmp1[tmp1$ratio>0.5,]
