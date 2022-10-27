@@ -4,16 +4,15 @@ Snp_file <- argv[1]
 sample <- argv[2]
 
 
- get_emission<-function(quam,noise=per_call_noise)
+ get_emission<-function(quam)
 {
-  ems<-do.call(rbind,lapply(1:nrow(quam),function(i){e=10^(quam[i,])+noise;return(e/sum(e))}))
+  ems<-do.call(rbind,lapply(1:nrow(quam),function(i){e=10^(quam[i,]);return(e/sum(e))}))
   return(ems)
 }
 
 gettrans=function(i)
 {
   return(diag(2)*(1-rec[i])+transbasis*rec[i])
-
 }
 
 viterbi=function()
@@ -66,16 +65,7 @@ viterbi=function()
      if(dim(data_raw_C)[1]<100)
       { next }
      else{
-       err=1
-       baseline_noise=err/5;
-       per_call_noise=err/5;
-       num_gen=1
-       corr_reads_b6=corr_reads_cast=0
-       all_reads_b6=all_reads_cast=0
-       corr_reads_target_test=0
-       all_reads_target_test=0
-       num_b6 = num_cast=0
- 
+      
        position=as.double(data_raw_C$V2)
  
        logll=strsplit(as.character(data_raw_C$V4),",",fixed=TRUE)
@@ -83,7 +73,7 @@ viterbi=function()
        logll=logll[,c(1,3)]
  
        emsmat=get_emission(logll)
-       rec=1-exp(-diff(position)*1e-9*num_gen)
+       rec=1-exp(-diff(position)*1e-9*)
  
        transbasis=rbind(c(0,1),c(1,0))
   
